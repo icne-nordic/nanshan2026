@@ -64,6 +64,39 @@ h2 em { font-style:normal; font-size:12px; color:var(--cyan); letter-spacing:.08
 .err { background:rgba(255,120,100,.18); border:1px solid rgba(255,140,120,.5); border-radius:10px; padding:8px 12px; font-size:13px; margin:4px 0 0 }
 .note { text-align:center; color:var(--soft); font-size:12px; margin-top:8px }
 .cta[disabled] { opacity:.6; cursor:wait }
+.q { font-size:15px; margin:2px 0 10px } .q span { display:block; font-size:13px; color:var(--soft) }
+.choice { display:flex; gap:10px; margin-bottom:14px }
+.choice button { flex:1; padding:12px 8px; border-radius:12px; border:1.5px solid rgba(255,255,255,.3); background:rgba(255,255,255,.06);
+  color:#fff; font:inherit; font-size:16px; font-weight:700; cursor:pointer; line-height:1.3 }
+.choice button small { display:block; font-size:12px; font-weight:500; opacity:.75 }
+.choice button[data-a=yes] { background:var(--cyan); border-color:var(--cyan); color:#06305f; box-shadow:0 6px 20px rgba(0,0,0,.25) }
+.choice button[aria-checked=true] { outline:3px solid #fff; outline-offset:2px }
+.choice button[data-a=no][aria-checked=true] { background:rgba(255,255,255,.2) }
+.rsvp { scroll-margin-top:16px }
+.rsvp > h2, .rsvp > .q { text-align:center; justify-content:center }
+.reg { margin-top:0 }
+.grid section { margin-top:22px }
+.orgs p:last-child { margin-bottom:0 }
+@media (min-width: 820px) {
+  body { font-size:16px }
+  .wrap { max-width:1080px; padding:0 32px }
+  .banner { max-width:1016px; margin:0 auto;
+    -webkit-mask-image:linear-gradient(to right,transparent,#000 9%,#000 91%,transparent),linear-gradient(#000 85%,transparent); -webkit-mask-composite:source-in;
+    mask-image:linear-gradient(to right,transparent,#000 9%,#000 91%,transparent),linear-gradient(#000 85%,transparent); mask-composite:intersect }
+  .entitle { font-size:18px }
+  section { padding:0 }
+  .when { display:flex; gap:28px; justify-content:center; padding:18px 28px }
+  .row + .row { margin-top:0; padding-top:0; border-top:0; padding-left:28px; border-left:1px solid var(--line) }
+  .grid { display:grid; grid-template-columns:1.15fr 1fr; gap:36px; align-items:start }
+  .orgs { display:grid; grid-template-columns:repeat(3,1fr); gap:18px }
+  .rsvp { max-width:560px; margin:36px auto 0 }
+  .sticky { display:none }
+  .sky { max-width:1080px; margin:20px auto 0; -webkit-mask-image:linear-gradient(to right,transparent,#000 12%,#000 88%,transparent); mask-image:linear-gradient(to right,transparent,#000 12%,#000 88%,transparent) }
+}
+.reg textarea { display:block; width:100%; margin-top:4px; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.28);
+  background:rgba(255,255,255,.1); color:#fff; font:inherit; font-size:16px; outline:none; resize:vertical }
+.reg textarea::placeholder, .reg input::placeholder { color:rgba(255,255,255,.45) }
+#f.no .y, #f.yes .n { display:none }
 .ticket { text-align:center }
 .ticket .tick { width:46px; height:46px; border-radius:50%; background:rgba(90,223,240,.2); color:var(--cyan); font-size:26px; line-height:46px; margin:4px auto 8px }
 .ticket .t1 { font-size:18px; display:block }
@@ -72,10 +105,11 @@ h2 em { font-style:normal; font-size:12px; color:var(--cyan); letter-spacing:.08
 .ticket .code { font:700 15px/1 ui-monospace,Menlo,monospace; letter-spacing:.12em; color:#06305f; margin-top:10px }
 .soft { color:var(--soft) } .small { font-size:12px; margin-top:8px }
 .link { background:none; border:0; color:var(--cyan); font:inherit; font-size:13px; margin-top:10px; cursor:pointer; text-decoration:underline }
+[hidden] { display:none !important }
 </style>
 </head>
 <body><div class="wrap">
-<img class="banner" src="banner.jpg" alt="深圳南山-瑞典斯德哥尔摩生命健康产业经贸交流会 Shenzhen Nanshan – Stockholm Life and Health Industry Economic and Trade Exchange Conference">
+<picture><source media="(min-width: 820px)" srcset="banner_wide.jpg"><img class="banner" src="banner.jpg" alt="深圳南山-瑞典斯德哥尔摩生命健康产业经贸交流会 Shenzhen Nanshan – Stockholm Life and Health Industry Economic and Trade Exchange Conference"></picture>
 <p class="entitle">Shenzhen Nanshan – Stockholm Life and Health Industry Economic and Trade Exchange Conference</p>
 
 <section>
@@ -86,33 +120,9 @@ h2 em { font-style:normal; font-size:12px; color:var(--cyan); letter-spacing:.08
    <div><b>斯德哥尔摩大酒店 · New York 厅</b><span>Grand Hôtel Stockholm, New York Room<br>Södra Blasieholmshamnen 8, Stockholm</span>
    <a href="https://maps.google.com/?q=Grand+H%C3%B4tel+Stockholm,+S%C3%B6dra+Blasieholmshamnen+8" target="_blank" rel="noopener">打开地图 Open map ›</a></div></div>
  </div>
-<div id="reg" class="reg">
-  <div id="regForm">
-   <h2 style="margin-top:6px">报名 <em>Registration</em></h2>
-   <form id="f" novalidate>
-    <label>姓名 Name *<input name="name" required autocomplete="name"></label>
-    <label>单位 Organization *<input name="org" required autocomplete="organization"></label>
-    <label>职务 Title *<input name="title" required autocomplete="organization-title"></label>
-    <label>邮箱 Email *<input name="email" type="email" required autocomplete="email" inputmode="email"></label>
-    <label>手机 Phone <span class="opt">选填 optional</span><input name="phone" type="tel" autocomplete="tel"></label>
-    <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
-    <p class="err" id="err" hidden></p>
-    <button class="cta" id="sub" type="submit">提交报名<small>Submit</small></button>
-    <p class="note" id="seats"></p>
-   </form>
-  </div>
-  <div id="ticket" class="ticket" hidden>
-   <div class="tick">✓</div>
-   <b class="t1" id="tHead">报名成功 You're registered</b>
-   <p id="tWho"></p>
-   <div class="qr"><div id="qr"></div><div class="code" id="tCode"></div></div>
-   <p>2026年11月26日（周四）14:00–17:00<br>斯德哥尔摩大酒店 · New York 厅<br><span class="soft">Thursday 26 November 2026 · Grand Hôtel Stockholm</span></p>
-   <p class="soft small">请截图保存，入场时出示此码<br>Please save a screenshot and show this code at check-in.</p>
-   <button class="link" id="again" type="button">为他人报名 Register another person</button>
-  </div>
- </div>
 </section>
 
+<div class="grid">
 <section>
  <h2>邀请函 <em>Invitation</em></h2>
  <div class="tabs" role="tablist">
@@ -146,16 +156,60 @@ h2 em { font-style:normal; font-size:12px; color:var(--cyan); letter-spacing:.08
   <div><time>17:00</time><p>活动结束，合影<span>Closing &amp; Group Photo</span></p></div>
  </div>
 </section>
+</div>
 
 <section class="org">
  <h2>组织单位 <em>Organizers</em></h2>
+ <div class="orgs">
  <p>主办：深圳市南山海外联谊会<span>Organizer: Shenzhen Nanshan Overseas Friendship Association</span></p>
  <p>承办：深圳市加中创新中心有限公司<span>Co-organizer: SCI Innovation Centre Co., Ltd.</span></p>
  <p>协办：北欧深圳总商会　北欧创新中心<span>Supporters: Nordic Shenzhen Chamber of Commerce, Innovation Centre Northern Europe</span></p>
+ </div>
+</section>
+
+<section id="rsvp" class="rsvp">
+ <h2>报名回复 <em>RSVP</em></h2>
+ <p class="q">诚邀您出席，请告知是否参加<span>Please let us know whether you can attend</span></p>
+ <div class="choice" role="radiogroup">
+  <button type="button" role="radio" aria-checked="false" data-a="yes">立即报名<small>Register</small></button>
+  <button type="button" role="radio" aria-checked="false" data-a="no">不参加<small>Decline</small></button>
+ </div>
+ <div id="reg" class="reg" hidden>
+  <div id="regForm">
+   <form id="f" novalidate hidden>
+    <label>姓名 Name *<input name="name" required autocomplete="name"></label>
+    <label>单位 Organization *<input name="org" required autocomplete="organization"></label>
+    <label class="y">职务 Title *<input name="title" autocomplete="organization-title"></label>
+    <label>邮箱 Email *<input name="email" type="email" required autocomplete="email" inputmode="email"></label>
+    <label class="y">手机 Phone <span class="opt">选填 optional</span><input name="phone" type="tel" autocomplete="tel"></label>
+    <label class="n">留言 Message <span class="opt">选填 optional</span><textarea name="note" rows="3" placeholder="如有需要可留言 Anything you would like to tell us"></textarea></label>
+    <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <p class="err" id="err" hidden></p>
+    <button class="cta" id="sub" type="submit">提交报名<small>Submit</small></button>
+    <p class="note" id="seats"></p>
+   </form>
+  </div>
+  <div id="ticket" class="ticket" hidden>
+   <div class="tick">✓</div>
+   <b class="t1" id="tHead">报名成功 You're registered</b>
+   <p id="tWho"></p>
+   <div class="qr"><div id="qr"></div><div class="code" id="tCode"></div></div>
+   <p>2026年11月26日（周四）14:00–17:00<br>斯德哥尔摩大酒店 · New York 厅<br><span class="soft">Thursday 26 November 2026 · Grand Hôtel Stockholm</span></p>
+   <p class="soft small">请截图保存，入场时出示此码<br>Please save a screenshot and show this code at check-in.</p>
+   <button class="link" id="again" type="button">为他人报名 Register another person</button>
+  </div>
+  <div id="declined" class="ticket" hidden>
+   <div class="tick">✉</div>
+   <b class="t1">感谢您的回复</b>
+   <p>Thank you for letting us know.</p>
+   <p class="soft small">期待下次相见。<br>We hope to see you at a future event.</p>
+   <button class="link" id="again2" type="button">改为参加 Change to attend</button>
+  </div>
+ </div>
 </section>
 
 <img class="sky" src="skyline.png" alt="">
-<div class="sticky off"><a class="cta" href="#reg">立即报名 Register</a></div>
+<div class="sticky off"><a class="cta" href="#rsvp" id="toRsvp">立即报名 Register</a></div>
 </div>
 <script>
 document.querySelectorAll('.tabs button').forEach(function (b) {
@@ -164,8 +218,9 @@ document.querySelectorAll('.tabs button').forEach(function (b) {
     document.querySelectorAll('.txt').forEach(function (t) { t.hidden = t.lang !== b.dataset.lang });
   });
 });
-var firstCta = document.getElementById('reg'), stickyBar = document.querySelector('.sticky');
-function chk() { var r = firstCta.getBoundingClientRect(); stickyBar.classList.toggle('off', r.top < innerHeight && r.bottom > 0) }
+var rsvpSec = document.getElementById('rsvp'), stickyBar = document.querySelector('.sticky');
+function chk() { var r = rsvpSec.getBoundingClientRect(); stickyBar.classList.toggle('off', r.top < innerHeight - 40 || scrollY < 120) }
+document.getElementById('toRsvp').onclick = function (e) { e.preventDefault(); rsvpSec.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 addEventListener('scroll', chk, { passive: true }); addEventListener('resize', chk); chk();
 if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button[data-lang=en]').click();
 </script>
@@ -180,7 +235,7 @@ if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button
     return fetch(API, { method: 'POST', body: new URLSearchParams(data) }).then(function (r) { return r.json(); });
   }
   function showTicket(t, dup) {
-    document.getElementById('regForm').hidden = true;
+    choiceBox.hidden = true; regBox.hidden = false; document.getElementById('regForm').hidden = true;
     var box = document.getElementById('ticket'); box.hidden = false;
     document.getElementById('tHead').textContent = dup ? '您已报名 You are already registered' : '报名成功 You\'re registered';
     document.getElementById('tWho').textContent = t.name + ' · ' + t.org;
@@ -189,31 +244,47 @@ if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button
     document.getElementById('tCode').textContent = t.code;
     try { localStorage.setItem(KEY, JSON.stringify(t)); } catch (e) {}
   }
+  var rsvpSec2 = document.getElementById('rsvp'), regBox = document.getElementById('reg'), choiceBox = document.querySelector('.choice');
+  var attend = null, choice = document.querySelectorAll('.choice button');
+  function pick(a) {
+    attend = a === 'yes'; regBox.hidden = false; f.hidden = false; f.className = attend ? 'yes' : 'no'; err.hidden = true;
+    choice.forEach(function (b) { b.setAttribute('aria-checked', b.dataset.a === a) });
+    sub.innerHTML = attend ? '提交报名<small>Submit registration</small>' : '提交回复<small>Send reply</small>';
+    sub.disabled = attend && sub.dataset.closed === '1';
+    if (!attend) sub.disabled = false;
+  }
+  choice.forEach(function (b) { b.onclick = function () { pick(b.dataset.a); setTimeout(function () { f.elements.name.focus({ preventScroll: true }); regBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50); }; });
+  function showDeclined() { choiceBox.hidden = true; document.getElementById('regForm').hidden = true; document.getElementById('declined').hidden = false; }
+  document.getElementById('again2').onclick = function () {
+    document.getElementById('declined').hidden = true; choiceBox.hidden = false; document.getElementById('regForm').hidden = false; pick('yes');
+  };
   document.getElementById('again').onclick = function () {
-    document.getElementById('ticket').hidden = true; document.getElementById('regForm').hidden = false;
-    f.reset(); try { localStorage.removeItem(KEY); } catch (e) {}
-    document.getElementById('reg').scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('ticket').hidden = true; document.getElementById('regForm').hidden = false; choiceBox.hidden = false;
+    f.reset(); try { localStorage.removeItem(KEY); } catch (e) {} pick('yes');
+    rsvpSec2.scrollIntoView({ behavior: 'smooth' });
   };
   try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved && saved.token) showTicket(saved, false); } catch (e) {}
   post({ action: 'status' }).then(function (r) {
     if (!r.ok) return;
-    if (r.closed) { sub.disabled = true; sub.innerHTML = '报名已截止 / 名额已满<small>Registration closed</small>'; }
+    if (r.closed) { sub.dataset.closed = '1'; seats.textContent = '报名已截止 / 名额已满 Registration closed'; if (attend) sub.disabled = true; }
     else if (r.left <= 15) seats.textContent = '剩余名额 Seats left: ' + r.left;
   }).catch(function () {});
   f.addEventListener('submit', function (e) {
     e.preventDefault(); err.hidden = true;
     var ok = true;
-    ['name', 'org', 'title', 'email'].forEach(function (n) {
+    var req = attend ? ['name', 'org', 'title', 'email'] : ['name', 'org', 'email'];
+    req.forEach(function (n) {
       var el = f.elements[n], bad = !el.value.trim() || (n === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(el.value.trim()));
       el.classList.toggle('bad', bad); if (bad) ok = false;
     });
     if (!ok) { err.textContent = msg('请填写带 * 的项目，邮箱格式要正确。', 'Please fill in the fields marked * with a valid email.'); err.hidden = false; return; }
     sub.disabled = true; var old = sub.innerHTML; sub.innerHTML = '提交中… <small>Submitting</small>';
-    var d = { action: 'register', lang: zh ? 'zh' : 'en', src: new URLSearchParams(location.search).get('src') || '' };
-    ['name', 'org', 'title', 'email', 'phone', 'website'].forEach(function (n) { d[n] = f.elements[n].value; });
+    var d = { action: attend ? 'register' : 'decline', lang: zh ? 'zh' : 'en', src: new URLSearchParams(location.search).get('src') || '' };
+    ['name', 'org', 'title', 'email', 'phone', 'note', 'website'].forEach(function (n) { d[n] = f.elements[n].value; });
     post(d).then(function (r) {
       sub.disabled = false; sub.innerHTML = old;
-      if (r.ok) { showTicket(r, r.dup); document.getElementById('reg').scrollIntoView({ behavior: 'smooth' }); return; }
+      if (r.ok && !attend) { showDeclined(); rsvpSec2.scrollIntoView({ behavior: 'smooth' }); return; }
+      if (r.ok) { showTicket(r, r.dup); rsvpSec2.scrollIntoView({ behavior: 'smooth' }); return; }
       var m = { full: msg('名额已满，感谢关注。', 'Sorry, the event is fully booked.'), closed: msg('报名已截止。', 'Registration is closed.'),
                 invalid: msg('请检查填写的信息。', 'Please check your details.') }[r.err] || msg('提交失败，请稍后再试。', 'Something went wrong, please try again.');
       err.textContent = m; err.hidden = false;
