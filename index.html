@@ -289,7 +289,7 @@ if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button
     d.innerHTML = '<p class="gh"></p><button type="button" class="rm" aria-label="删除 Remove">×</button>' +
       '<label>姓名　Name *<input data-g="name" autocomplete="off"></label>' +
       '<label>职务　Title *<input data-g="title" autocomplete="off"></label>' +
-      '<label>邮箱（选填）　Email (optional)<input data-g="email" type="email" inputmode="email" autocomplete="off"></label>';
+      '<label>邮箱　Email *<input data-g="email" type="email" inputmode="email" autocomplete="off"></label>';
     d.querySelector('.rm').onclick = function () { d.remove(); renum(); };
     gBox.appendChild(d); renum(); d.querySelector('input').focus();
   };
@@ -299,7 +299,7 @@ if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button
       var g = {}; r.querySelectorAll('input').forEach(function (i) { g[i.dataset.g] = i.value.trim(); i.classList.remove('bad'); });
       if (!g.name && !g.title && !g.email) return;                     // 空行忽略
       r.querySelectorAll('input').forEach(function (i) {
-        var v = i.value.trim(), bad = (i.dataset.g !== 'email' && !v) || (i.dataset.g === 'email' && v && !EM.test(v));
+        var v = i.value.trim(), bad = !v || (i.dataset.g === 'email' && !EM.test(v)) || (i.dataset.g === 'email' && v.toLowerCase() === f.elements.email.value.trim().toLowerCase());
         i.classList.toggle('bad', bad); if (bad) ok = false;
       });
       list.push(g);
