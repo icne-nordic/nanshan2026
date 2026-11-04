@@ -72,7 +72,7 @@ h2 em { font-style:normal; font-size:12px; color:var(--cyan); letter-spacing:.08
 .choice button[data-a=yes] { background:var(--cyan); border-color:var(--cyan); color:#06305f; box-shadow:0 6px 20px rgba(0,0,0,.25) }
 .choice button[aria-checked=true] { outline:3px solid #fff; outline-offset:2px }
 .choice button[data-a=no][aria-checked=true] { background:rgba(255,255,255,.2) }
-.rsvp { scroll-margin-top:16px }
+.rsvp { scroll-margin-top:8px }
 .rsvp > h2, .rsvp > .q { text-align:center; justify-content:center }
 .reg { margin-top:0 }
 .grid section { margin-top:22px }
@@ -108,6 +108,19 @@ h2 em { font-style:normal; font-size:12px; color:var(--cyan); letter-spacing:.08
 .ticket .code { font:700 15px/1 ui-monospace,Menlo,monospace; letter-spacing:.12em; color:#06305f; margin-top:10px }
 .soft { color:var(--soft) } .small { font-size:12px; margin-top:8px }
 .link { background:none; border:0; color:var(--cyan); font:inherit; font-size:13px; margin-top:10px; cursor:pointer; text-decoration:underline }
+@media (max-width: 819px) {
+  .rsvp { padding-top:6px }
+  .rsvp > h2 { margin-bottom:4px }
+  .q { margin:0 0 8px; font-size:14px; line-height:1.45 } .q span { font-size:12px }
+  .choice { margin-bottom:10px } .choice button { padding:8px; font-size:15px }
+  .reg { padding:10px 14px 12px }
+  .lead { margin-bottom:6px; font-size:13px }
+  .reg label { margin-bottom:6px; font-size:12.5px; line-height:1.4 }
+  .reg input { padding:8px 10px; margin-top:3px }
+  .reg textarea { margin-top:3px }
+  #sub { margin-top:10px; padding:10px }
+  .note { margin-top:4px }
+}
 [hidden] { display:none !important }
 </style>
 </head>
@@ -256,7 +269,7 @@ if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button
     sub.disabled = attend && sub.dataset.closed === '1';
     if (!attend) sub.disabled = false;
   }
-  choice.forEach(function (b) { b.onclick = function () { pick(b.dataset.a); setTimeout(function () { f.elements.name.focus({ preventScroll: true }); regBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50); }; });
+  choice.forEach(function (b) { b.onclick = function () { pick(b.dataset.a); setTimeout(function () { rsvpSec2.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50); }; });
   function showDeclined() { choiceBox.hidden = true; document.getElementById('regForm').hidden = true; document.getElementById('declined').hidden = false; }
   document.getElementById('again').onclick = function () {
     document.getElementById('ticket').hidden = true; document.getElementById('regForm').hidden = false; choiceBox.hidden = false;
@@ -264,6 +277,7 @@ if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button
     rsvpSec2.scrollIntoView({ behavior: 'smooth' });
   };
   try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved && saved.token) showTicket(saved, false); } catch (e) {}
+  if (/^#(reg|rsvp)$/.test(location.hash) && regBox.hidden && document.getElementById('ticket').hidden) { pick('yes'); setTimeout(function () { rsvpSec2.scrollIntoView({ block: 'start' }); }, 300); }
   post({ action: 'status' }).then(function (r) {
     if (!r.ok) return;
     if (r.closed) { sub.dataset.closed = '1'; seats.textContent = '报名已截止 / 名额已满 Registration closed'; if (attend) sub.disabled = true; }
