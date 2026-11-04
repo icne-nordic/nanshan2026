@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>签到 Check-in</title>
+<style>
+:root { --cyan:#5adff0; --ok:#2ea043; --warn:#d29922; --bad:#f85149 }
+* { box-sizing:border-box; margin:0; padding:0 }
+body { background:#0d1117; color:#e6edf3; font:15px/1.5 -apple-system,"PingFang SC","Helvetica Neue",sans-serif; min-height:100vh }
+.wrap { max-width:480px; margin:0 auto; padding:12px 14px calc(16px + env(safe-area-inset-bottom)) }
+h1 { font-size:16px; font-weight:600; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px }
+h1 button { background:none; border:1px solid #30363d; color:#8b949e; border-radius:8px; padding:3px 9px; font:inherit; font-size:12px }
+.cam { position:relative; border-radius:16px; overflow:hidden; background:#161b22; aspect-ratio:1/1 }
+.cam video { width:100%; height:100%; object-fit:cover; display:block }
+.cam i { position:absolute; inset:18%; border:3px solid var(--cyan); border-radius:16px; box-shadow:0 0 0 999px rgba(0,0,0,.25) }
+.cam .hint { position:absolute; left:0; right:0; bottom:10px; text-align:center; font-size:12px; color:#c9d1d9 }
+.res { margin-top:12px; border-radius:14px; padding:14px; border:1px solid #30363d; background:#161b22; min-height:86px }
+.res b { display:block; font-size:20px; line-height:1.3 }
+.res span { color:#c9d1d9 }
+.res.ok { background:#12351f; border-color:var(--ok) }
+.res.warn { background:#3a2a10; border-color:var(--warn) }
+.res.bad { background:#3d1418; border-color:var(--bad) }
+.man { display:flex; gap:8px; margin-top:12px }
+.man input { flex:1; min-width:0; padding:10px 12px; border-radius:10px; border:1px solid #30363d; background:#0d1117; color:#fff; font:inherit; font-size:16px; text-transform:uppercase }
+.man button, .pin button { padding:10px 16px; border-radius:10px; border:0; background:var(--cyan); color:#06305f; font:inherit; font-weight:700 }
+.cnt { display:flex; gap:8px; margin-top:12px }
+.cnt div { flex:1; background:#161b22; border-radius:12px; padding:8px; text-align:center; font-size:12px; color:#8b949e }
+.cnt b { display:block; font-size:22px; color:var(--cyan) }
+.pin { margin-top:30vh; text-align:center }
+.pin input { display:block; width:100%; margin:12px 0; padding:12px; border-radius:10px; border:1px solid #30363d; background:#161b22; color:#fff; font-size:22px; text-align:center; letter-spacing:.3em }
+.pin button { width:100% }
+[hidden] { display:none !important }
+</style>
+</head><body><div class="wrap">
+
+<div id="lock" class="pin">
+ <h1 style="justify-content:center">交流会签到 Check-in</h1>
+ <input id="pinIn" inputmode="numeric" autocomplete="off" placeholder="口令 PIN">
+ <button id="pinGo">进入 Enter</button>
+ <p id="pinErr" style="color:var(--bad);margin-top:10px" hidden>口令不对 Wrong PIN</p>
+</div>
+
+<div id="app" hidden>
+ <h1>交流会签到 · 11月26日 <button id="logout">退出</button></h1>
+ <div class="cam"><video id="v" playsinline muted></video><i></i><div class="hint" id="hint">对准入场二维码 Point at the QR code</div></div>
+ <div class="res" id="res"><span>等待扫码… Waiting for scan</span></div>
+ <form class="man" id="man"><input id="manIn" placeholder="手输编号 N023"><button>签到</button></form>
+ <div class="cnt"><div><b id="cReg">–</b>已报名</div><div><b id="cIn">–</b>已签到</div><div><b id="cOut">–</b>未到</div></div>
+</div>
+<canvas id="c" hidden></canvas>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script>
+(function () {
+  var API = 'https://script.google.com/macros/s/AKfycbw5kCSTa27p1NzOL9asX-kYvYV2TQ0bjHe2bHJzqm8uQK9SAfJpjGYWBBrBrYPzsHII6g/exec', PK = 'ns26-pin';
+  var pin = ''; try { pin = localStorage.getItem(PK) || ''; } catch (e) {}
+  var v = document.getElementById('v'), cv = document.getElementById('c'), ctx = cv.getContext('2d', { willReadFrequently: true });
+  var res = document.getElementById('res'), busy = false, last = '', lastAt = 0;
+  function post(d) { d.pin = pin; return fetch(API, { method: 'POST', body: new URLSearchParams(d) }).then(function (r) { return r.json(); }); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function show(cls, html) { res.className = 'res ' + cls; res.innerHTML = html; }
+  function beep(ok) {
+    try { var a = new (window.AudioContext || window.webkitAudioContext)(), o = a.createOscillator(); o.frequency.value = ok ? 880 : 220;
+      o.connect(a.destination); o.start(); o.stop(a.currentTime + (ok ? .12 : .3)); } catch (e) {}
+    if (navigator.vibrate) navigator.vibrate(ok ? 80 : [80, 60, 80]);
+  }
+  function stats() { post({ action: 'stats' }).then(function (r) { if (!r.ok) return;
+    document.getElementById('cReg').textContent = r.reg; document.getElementById('cIn').textContent = r.inn; document.getElementById('cOut').textContent = r.out; }); }
+  function checkin(t) {
+    busy = true; show('', '<span>查询中… Checking</span>');
+    post({ action: 'checkin', t: t }).then(function (r) {
+      var w = r.who || {};
+      var who = '<b>' + esc(w.name || '') + ' · ' + esc(w.code || '') + '</b><span>' + esc(w.org || '') + (w.title ? ' · ' + esc(w.title) : '') + '</span>';
+      if (r.ok && !r.again) { show('ok', '<b>✓ ' + esc(w.name) + ' · ' + esc(w.code) + '</b><span>' + esc(w.org) + (w.title ? ' · ' + esc(w.title) : '') + '<br>签到成功 Checked in ' + esc(r.at.slice(11, 16)) + '</span>'); beep(true); }
+      else if (r.ok && r.again) { show('warn', '<b>⚠ 已签到 Already checked in</b>' + who.replace('<b>', '<span>').replace('</b>', '</span><br>') + '<br><span>' + esc(r.at.slice(11, 16)) + ' 已签过</span>'); beep(false); }
+      else if (r.err === 'pin') { lockOut(); }
+      else if (r.err === 'cancelled') { show('bad', '<b>✕ 已取消报名 Cancelled</b>' + who); beep(false); }
+      else { show('bad', '<b>✕ 查无此码 Not found</b><span>请人工核对 Please check manually</span>'); beep(false); }
+      stats();
+    }).catch(function () { show('bad', '<b>网络不通 Network error</b><span>请重试 Please retry</span>'); })
+      .then(function () { busy = false; });
+  }
+  function tick() {
+    if (v.readyState === v.HAVE_ENOUGH_DATA && !busy) {
+      var w = v.videoWidth, h = v.videoHeight, s = Math.min(w, h), sz = 480;
+      cv.width = sz; cv.height = sz; ctx.drawImage(v, (w - s) / 2, (h - s) / 2, s, s, 0, 0, sz, sz);
+      var q = jsQR(ctx.getImageData(0, 0, sz, sz).data, sz, sz, { inversionAttempts: 'dontInvert' });
+      if (q && q.data) {
+        var t = q.data.trim(), now = Date.now();
+        if (t !== last || now - lastAt > 4000) { last = t; lastAt = now; checkin(t); }
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+  function startCam() {
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }).then(function (st) {
+      v.srcObject = st; v.play(); requestAnimationFrame(tick);
+    }).catch(function () { document.getElementById('hint').textContent = '无法打开摄像头，请用手输编号 Camera unavailable'; });
+  }
+  function enter() {
+    document.getElementById('lock').hidden = true; document.getElementById('app').hidden = false; stats(); startCam();
+    setInterval(stats, 30000);
+  }
+  function lockOut() {
+    try { localStorage.removeItem(PK); } catch (e) {} pin = '';
+    document.getElementById('app').hidden = true; document.getElementById('lock').hidden = false;
+    document.getElementById('pinErr').hidden = false;
+  }
+  document.getElementById('pinGo').onclick = function () {
+    pin = document.getElementById('pinIn').value.trim();
+    post({ action: 'stats' }).then(function (r) {
+      if (r.ok) { try { localStorage.setItem(PK, pin); } catch (e) {} enter(); } else { document.getElementById('pinErr').hidden = false; }
+    });
+  };
+  document.getElementById('logout').onclick = function () { try { localStorage.removeItem(PK); } catch (e) {} location.reload(); };
+  document.getElementById('man').onsubmit = function (e) { e.preventDefault(); var t = document.getElementById('manIn').value.trim(); if (t) { checkin(t); document.getElementById('manIn').value = ''; } };
+  if (pin) enter();
+})();
+</script>
+</body></html>

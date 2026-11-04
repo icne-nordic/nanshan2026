@@ -53,6 +53,25 @@ h2 em { font-style:normal; font-size:12px; color:var(--cyan); letter-spacing:.08
 .sticky { position:sticky; bottom:0; transition:opacity .25s, transform .25s; padding:10px 20px calc(14px + env(safe-area-inset-bottom)); background:linear-gradient(rgba(5,40,90,0),rgba(5,40,90,.9) 45%) }
 .sticky .cta { margin:0 }
 .sticky.off { opacity:0; transform:translateY(100%); pointer-events:none }
+.reg { margin-top:16px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px 16px; scroll-margin-top:12px }
+.reg label { display:block; font-size:13px; color:var(--soft); margin-bottom:10px }
+.reg input { display:block; width:100%; margin-top:4px; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.28);
+  background:rgba(255,255,255,.1); color:#fff; font:inherit; font-size:16px; outline:none }
+.reg input:focus { border-color:var(--cyan); background:rgba(255,255,255,.16) }
+.reg input.bad { border-color:#ff9b8a }
+.opt { font-size:11px; opacity:.8 }
+.hp { position:absolute; left:-9999px; width:1px; height:1px; opacity:0 }
+.err { background:rgba(255,120,100,.18); border:1px solid rgba(255,140,120,.5); border-radius:10px; padding:8px 12px; font-size:13px; margin:4px 0 0 }
+.note { text-align:center; color:var(--soft); font-size:12px; margin-top:8px }
+.cta[disabled] { opacity:.6; cursor:wait }
+.ticket { text-align:center }
+.ticket .tick { width:46px; height:46px; border-radius:50%; background:rgba(90,223,240,.2); color:var(--cyan); font-size:26px; line-height:46px; margin:4px auto 8px }
+.ticket .t1 { font-size:18px; display:block }
+.ticket .qr { background:#fff; border-radius:14px; padding:14px; width:230px; margin:12px auto }
+.ticket .qr img, .ticket .qr svg { width:100%; height:auto; display:block }
+.ticket .code { font:700 15px/1 ui-monospace,Menlo,monospace; letter-spacing:.12em; color:#06305f; margin-top:10px }
+.soft { color:var(--soft) } .small { font-size:12px; margin-top:8px }
+.link { background:none; border:0; color:var(--cyan); font:inherit; font-size:13px; margin-top:10px; cursor:pointer; text-decoration:underline }
 </style>
 </head>
 <body><div class="wrap">
@@ -67,7 +86,31 @@ h2 em { font-style:normal; font-size:12px; color:var(--cyan); letter-spacing:.08
    <div><b>斯德哥尔摩大酒店 · New York 厅</b><span>Grand Hôtel Stockholm, New York Room<br>Södra Blasieholmshamnen 8, Stockholm</span>
    <a href="https://maps.google.com/?q=Grand+H%C3%B4tel+Stockholm,+S%C3%B6dra+Blasieholmshamnen+8" target="_blank" rel="noopener">打开地图 Open map ›</a></div></div>
  </div>
- <a class="cta luma-reg" href="https://luma.com/pnv7phw6">立即报名<small>Register</small></a>
+<div id="reg" class="reg">
+  <div id="regForm">
+   <h2 style="margin-top:6px">报名 <em>Registration</em></h2>
+   <form id="f" novalidate>
+    <label>姓名 Name *<input name="name" required autocomplete="name"></label>
+    <label>单位 Organization *<input name="org" required autocomplete="organization"></label>
+    <label>职务 Title *<input name="title" required autocomplete="organization-title"></label>
+    <label>邮箱 Email *<input name="email" type="email" required autocomplete="email" inputmode="email"></label>
+    <label>手机 Phone <span class="opt">选填 optional</span><input name="phone" type="tel" autocomplete="tel"></label>
+    <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <p class="err" id="err" hidden></p>
+    <button class="cta" id="sub" type="submit">提交报名<small>Submit</small></button>
+    <p class="note" id="seats"></p>
+   </form>
+  </div>
+  <div id="ticket" class="ticket" hidden>
+   <div class="tick">✓</div>
+   <b class="t1" id="tHead">报名成功 You're registered</b>
+   <p id="tWho"></p>
+   <div class="qr"><div id="qr"></div><div class="code" id="tCode"></div></div>
+   <p>2026年11月26日（周四）14:00–17:00<br>斯德哥尔摩大酒店 · New York 厅<br><span class="soft">Thursday 26 November 2026 · Grand Hôtel Stockholm</span></p>
+   <p class="soft small">请截图保存，入场时出示此码<br>Please save a screenshot and show this code at check-in.</p>
+   <button class="link" id="again" type="button">为他人报名 Register another person</button>
+  </div>
+ </div>
 </section>
 
 <section>
@@ -112,7 +155,7 @@ h2 em { font-style:normal; font-size:12px; color:var(--cyan); letter-spacing:.08
 </section>
 
 <img class="sky" src="skyline.png" alt="">
-<div class="sticky off"><a class="cta luma-reg" href="https://luma.com/pnv7phw6">立即报名 Register</a></div>
+<div class="sticky off"><a class="cta" href="#reg">立即报名 Register</a></div>
 </div>
 <script>
 document.querySelectorAll('.tabs button').forEach(function (b) {
@@ -121,10 +164,65 @@ document.querySelectorAll('.tabs button').forEach(function (b) {
     document.querySelectorAll('.txt').forEach(function (t) { t.hidden = t.lang !== b.dataset.lang });
   });
 });
-var firstCta = document.querySelector('section .cta'), stickyBar = document.querySelector('.sticky');
-function chk() { stickyBar.classList.toggle('off', firstCta.getBoundingClientRect().bottom > 0) }
+var firstCta = document.getElementById('reg'), stickyBar = document.querySelector('.sticky');
+function chk() { var r = firstCta.getBoundingClientRect(); stickyBar.classList.toggle('off', r.top < innerHeight && r.bottom > 0) }
 addEventListener('scroll', chk, { passive: true }); addEventListener('resize', chk); chk();
 if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button[data-lang=en]').click();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+(function () {
+  var API = 'https://script.google.com/macros/s/AKfycbw5kCSTa27p1NzOL9asX-kYvYV2TQ0bjHe2bHJzqm8uQK9SAfJpjGYWBBrBrYPzsHII6g/exec', KEY = 'ns26-ticket';
+  var f = document.getElementById('f'), sub = document.getElementById('sub'), err = document.getElementById('err'), seats = document.getElementById('seats');
+  var zh = /^zh/i.test(navigator.language || '');
+  function msg(cn, en) { return zh ? cn + ' ' + en : en + ' ' + cn; }
+  function post(data) {
+    return fetch(API, { method: 'POST', body: new URLSearchParams(data) }).then(function (r) { return r.json(); });
+  }
+  function showTicket(t, dup) {
+    document.getElementById('regForm').hidden = true;
+    var box = document.getElementById('ticket'); box.hidden = false;
+    document.getElementById('tHead').textContent = dup ? '您已报名 You are already registered' : '报名成功 You\'re registered';
+    document.getElementById('tWho').textContent = t.name + ' · ' + t.org;
+    var q = qrcode(0, 'M'); q.addData('NS26-' + t.token); q.make();
+    document.getElementById('qr').innerHTML = q.createSvgTag({ cellSize: 6, margin: 0, scalable: true });
+    document.getElementById('tCode').textContent = t.code;
+    try { localStorage.setItem(KEY, JSON.stringify(t)); } catch (e) {}
+  }
+  document.getElementById('again').onclick = function () {
+    document.getElementById('ticket').hidden = true; document.getElementById('regForm').hidden = false;
+    f.reset(); try { localStorage.removeItem(KEY); } catch (e) {}
+    document.getElementById('reg').scrollIntoView({ behavior: 'smooth' });
+  };
+  try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved && saved.token) showTicket(saved, false); } catch (e) {}
+  post({ action: 'status' }).then(function (r) {
+    if (!r.ok) return;
+    if (r.closed) { sub.disabled = true; sub.innerHTML = '报名已截止 / 名额已满<small>Registration closed</small>'; }
+    else if (r.left <= 15) seats.textContent = '剩余名额 Seats left: ' + r.left;
+  }).catch(function () {});
+  f.addEventListener('submit', function (e) {
+    e.preventDefault(); err.hidden = true;
+    var ok = true;
+    ['name', 'org', 'title', 'email'].forEach(function (n) {
+      var el = f.elements[n], bad = !el.value.trim() || (n === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(el.value.trim()));
+      el.classList.toggle('bad', bad); if (bad) ok = false;
+    });
+    if (!ok) { err.textContent = msg('请填写带 * 的项目，邮箱格式要正确。', 'Please fill in the fields marked * with a valid email.'); err.hidden = false; return; }
+    sub.disabled = true; var old = sub.innerHTML; sub.innerHTML = '提交中… <small>Submitting</small>';
+    var d = { action: 'register', lang: zh ? 'zh' : 'en', src: new URLSearchParams(location.search).get('src') || '' };
+    ['name', 'org', 'title', 'email', 'phone', 'website'].forEach(function (n) { d[n] = f.elements[n].value; });
+    post(d).then(function (r) {
+      sub.disabled = false; sub.innerHTML = old;
+      if (r.ok) { showTicket(r, r.dup); document.getElementById('reg').scrollIntoView({ behavior: 'smooth' }); return; }
+      var m = { full: msg('名额已满，感谢关注。', 'Sorry, the event is fully booked.'), closed: msg('报名已截止。', 'Registration is closed.'),
+                invalid: msg('请检查填写的信息。', 'Please check your details.') }[r.err] || msg('提交失败，请稍后再试。', 'Something went wrong, please try again.');
+      err.textContent = m; err.hidden = false;
+    }).catch(function () {
+      sub.disabled = false; sub.innerHTML = old;
+      err.textContent = msg('网络不通，请稍后再试。', 'Network error, please try again.'); err.hidden = false;
+    });
+  });
+})();
 </script>
 </body>
 </html>
