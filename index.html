@@ -277,7 +277,7 @@ if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button
     rsvpSec2.scrollIntoView({ behavior: 'smooth' });
   };
   try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved && saved.token) showTicket(saved, false); } catch (e) {}
-  if (/^#(reg|rsvp)$/.test(location.hash) && regBox.hidden && document.getElementById('ticket').hidden) { pick('yes'); setTimeout(function () { rsvpSec2.scrollIntoView({ block: 'start' }); }, 300); }
+  if (/^#(reg|rsvp)$/.test(location.hash)) setTimeout(function () { rsvpSec2.scrollIntoView({ block: 'start' }); }, 300);   // 只跳到报名区，表格默认收起
   post({ action: 'status' }).then(function (r) {
     if (!r.ok) return;
     if (r.closed) { sub.dataset.closed = '1'; seats.textContent = '报名已截止 / 名额已满 Registration closed'; if (attend) sub.disabled = true; }
