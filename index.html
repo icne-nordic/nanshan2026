@@ -245,13 +245,13 @@ if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button
 (function () {
   var API = 'https://script.google.com/macros/s/AKfycbw5kCSTa27p1NzOL9asX-kYvYV2TQ0bjHe2bHJzqm8uQK9SAfJpjGYWBBrBrYPzsHII6g/exec', KEY = 'ns26-ticket';
   var f = document.getElementById('f'), sub = document.getElementById('sub'), err = document.getElementById('err'), seats = document.getElementById('seats');
-  var zh = /^zh/i.test(navigator.language || '');
+  var zh = /^zh/i.test(navigator.language || ''); window.qLine0 = document.querySelector('.rsvp > .q');
   function msg(cn, en) { return zh ? cn + ' ' + en : en + ' ' + cn; }
   function post(data) {
     return fetch(API, { method: 'POST', body: new URLSearchParams(data) }).then(function (r) { return r.json(); });
   }
   function showTicket(t, dup) {
-    choiceBox.hidden = true; regBox.hidden = false; document.getElementById('regForm').hidden = true;
+    choiceBox.hidden = true; if (window.qLine0) qLine0.hidden = true; regBox.hidden = false; document.getElementById('regForm').hidden = true;
     var box = document.getElementById('ticket'); box.hidden = false;
     document.getElementById('tHead').textContent = dup ? '您已报名 You are already registered' : '报名成功 You\'re registered';
     document.getElementById('tWho').textContent = '尊敬的 ' + t.name + '　Dear ' + t.name; document.getElementById('tOrg').textContent = t.org;
@@ -260,7 +260,7 @@ if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button
     document.getElementById('tCode').textContent = t.code;
     try { localStorage.setItem(KEY, JSON.stringify(t)); } catch (e) {}
   }
-  var rsvpSec2 = document.getElementById('rsvp'), regBox = document.getElementById('reg'), choiceBox = document.querySelector('.choice');
+  var rsvpSec2 = document.getElementById('rsvp'), regBox = document.getElementById('reg'), choiceBox = document.querySelector('.choice'), qLine = document.querySelector('.rsvp > .q');
   var attend = null, choice = document.querySelectorAll('.choice button');
   function pick(a) {
     attend = a === 'yes'; regBox.hidden = false; f.hidden = false; f.className = attend ? 'yes' : 'no'; err.hidden = true;
@@ -270,10 +270,11 @@ if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button
     if (!attend) sub.disabled = false;
   }
   choice.forEach(function (b) { b.onclick = function () { pick(b.dataset.a); setTimeout(function () { rsvpSec2.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50); }; });
-  function showDeclined() { choiceBox.hidden = true; document.getElementById('regForm').hidden = true; document.getElementById('declined').hidden = false; }
+  function showDeclined() { choiceBox.hidden = true; qLine.hidden = true; document.getElementById('regForm').hidden = true; document.getElementById('declined').hidden = false; }
   document.getElementById('again').onclick = function () {
-    document.getElementById('ticket').hidden = true; document.getElementById('regForm').hidden = false; choiceBox.hidden = false;
-    f.reset(); try { localStorage.removeItem(KEY); } catch (e) {} pick('yes');
+    document.getElementById('ticket').hidden = true; document.getElementById('regForm').hidden = false; choiceBox.hidden = false; qLine.hidden = false;
+    f.reset(); try { localStorage.removeItem(KEY); } catch (e) {} regBox.hidden = true; f.hidden = true; attend = null;
+    choice.forEach(function (b) { b.setAttribute('aria-checked', 'false') });
     rsvpSec2.scrollIntoView({ behavior: 'smooth' });
   };
   try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved && saved.token) showTicket(saved, false); } catch (e) {}
