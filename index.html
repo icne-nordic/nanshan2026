@@ -11,7 +11,7 @@
 <style>
 :root { --cyan:#5adff0; --ink:#fff; --soft:rgba(255,255,255,.78); --card:rgba(255,255,255,.08); --line:rgba(255,255,255,.16) }
 * { box-sizing:border-box; margin:0; padding:0 }
-html { background:#0a5a8e }
+html { background:linear-gradient(115deg,#073583 0%,#0a6790 50%,#159a7b 100%) fixed #0a6790; min-height:100% }
 body { font:15px/1.7 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",Arial,sans-serif; color:var(--ink);
   background:linear-gradient(115deg,#073583 0%,#0a6790 50%,#159a7b 100%) fixed; min-height:100vh; -webkit-text-size-adjust:100% }
 .wrap { max-width:480px; margin:0 auto; position:relative }
@@ -97,6 +97,9 @@ h2 em { font-style:normal; font-size:12px; color:var(--cyan); letter-spacing:.08
   background:rgba(255,255,255,.1); color:#fff; font:inherit; font-size:16px; outline:none; resize:vertical }
 .reg textarea::placeholder, .reg input::placeholder { color:rgba(255,255,255,.45) }
 #f.no .y, #f.yes .n { display:none }
+.lead { font-size:14px; margin-bottom:12px; color:#fff }
+.dear { font-size:15px; margin-bottom:2px }
+#f.no .lead { display:none }
 .ticket { text-align:center }
 .ticket .tick { width:46px; height:46px; border-radius:50%; background:rgba(90,223,240,.2); color:var(--cyan); font-size:26px; line-height:46px; margin:4px auto 8px }
 .ticket .t1 { font-size:18px; display:block }
@@ -177,12 +180,13 @@ h2 em { font-style:normal; font-size:12px; color:var(--cyan); letter-spacing:.08
  <div id="reg" class="reg" hidden>
   <div id="regForm">
    <form id="f" novalidate hidden>
-    <label>姓名 Name *<input name="name" required autocomplete="name"></label>
-    <label>单位 Organization *<input name="org" required autocomplete="organization"></label>
-    <label class="y">职务 Title *<input name="title" autocomplete="organization-title"></label>
-    <label>邮箱 Email *<input name="email" type="email" required autocomplete="email" inputmode="email"></label>
-    <label class="y">手机 Phone <span class="opt">选填 optional</span><input name="phone" type="tel" autocomplete="tel"></label>
-    <label class="n">留言 Message <span class="opt">选填 optional</span><textarea name="note" rows="3" placeholder="如有需要可留言 Anything you would like to tell us"></textarea></label>
+    <p class="lead y">请填写您的信息。　Please fill in your details.</p>
+    <label class="y">姓名　Name *<input name="name" required autocomplete="name"></label>
+    <label class="y">单位　Organization *<input name="org" required autocomplete="organization"></label>
+    <label class="y">职务　Title *<input name="title" autocomplete="organization-title"></label>
+    <label class="y">邮箱　Email *<input name="email" type="email" required autocomplete="email" inputmode="email"></label>
+    <label class="y">手机（选填）　Phone (optional)<input name="phone" type="tel" autocomplete="tel"></label>
+    <label class="n">未能出席说明（选填）　Reason (optional)<textarea name="note" rows="4"></textarea></label>
     <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
     <p class="err" id="err" hidden></p>
     <button class="cta" id="sub" type="submit">提交报名<small>Submit</small></button>
@@ -191,19 +195,18 @@ h2 em { font-style:normal; font-size:12px; color:var(--cyan); letter-spacing:.08
   </div>
   <div id="ticket" class="ticket" hidden>
    <div class="tick">✓</div>
+   <p id="tWho" class="dear"></p>
    <b class="t1" id="tHead">报名成功 You're registered</b>
-   <p id="tWho"></p>
+   <p id="tOrg" class="soft"></p>
    <div class="qr"><div id="qr"></div><div class="code" id="tCode"></div></div>
    <p>2026年11月26日（周四）14:00–17:00<br>斯德哥尔摩大酒店 · New York 厅<br><span class="soft">Thursday 26 November 2026 · Grand Hôtel Stockholm</span></p>
    <p class="soft small">请截图保存，入场时出示此码<br>Please save a screenshot and show this code at check-in.</p>
    <button class="link" id="again" type="button">为他人报名 Register another person</button>
   </div>
   <div id="declined" class="ticket" hidden>
-   <div class="tick">✉</div>
-   <b class="t1">感谢您的回复</b>
-   <p>Thank you for letting us know.</p>
-   <p class="soft small">期待下次相见。<br>We hope to see you at a future event.</p>
-   <button class="link" id="again2" type="button">改为参加 Change to attend</button>
+   <div class="tick">✓</div>
+   <b class="t1">已收到您的回复</b>
+   <p>Thank you for your reply — we hope to see you next time.</p>
   </div>
  </div>
 </section>
@@ -238,7 +241,7 @@ if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button
     choiceBox.hidden = true; regBox.hidden = false; document.getElementById('regForm').hidden = true;
     var box = document.getElementById('ticket'); box.hidden = false;
     document.getElementById('tHead').textContent = dup ? '您已报名 You are already registered' : '报名成功 You\'re registered';
-    document.getElementById('tWho').textContent = t.name + ' · ' + t.org;
+    document.getElementById('tWho').textContent = '尊敬的 ' + t.name + '　Dear ' + t.name; document.getElementById('tOrg').textContent = t.org;
     var q = qrcode(0, 'M'); q.addData('NS26-' + t.token); q.make();
     document.getElementById('qr').innerHTML = q.createSvgTag({ cellSize: 6, margin: 0, scalable: true });
     document.getElementById('tCode').textContent = t.code;
@@ -255,9 +258,6 @@ if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button
   }
   choice.forEach(function (b) { b.onclick = function () { pick(b.dataset.a); setTimeout(function () { f.elements.name.focus({ preventScroll: true }); regBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50); }; });
   function showDeclined() { choiceBox.hidden = true; document.getElementById('regForm').hidden = true; document.getElementById('declined').hidden = false; }
-  document.getElementById('again2').onclick = function () {
-    document.getElementById('declined').hidden = true; choiceBox.hidden = false; document.getElementById('regForm').hidden = false; pick('yes');
-  };
   document.getElementById('again').onclick = function () {
     document.getElementById('ticket').hidden = true; document.getElementById('regForm').hidden = false; choiceBox.hidden = false;
     f.reset(); try { localStorage.removeItem(KEY); } catch (e) {} pick('yes');
@@ -272,12 +272,14 @@ if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button
   f.addEventListener('submit', function (e) {
     e.preventDefault(); err.hidden = true;
     var ok = true;
-    var req = attend ? ['name', 'org', 'title', 'email'] : ['name', 'org', 'email'];
+    var req = attend ? ['name', 'org', 'title', 'email'] : [];
     req.forEach(function (n) {
-      var el = f.elements[n], bad = !el.value.trim() || (n === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(el.value.trim()));
+      var el = f.elements[n], v = el.value.trim(), bad = attend ? (!v || (n === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)))
+                                                       : (v !== '' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v));
       el.classList.toggle('bad', bad); if (bad) ok = false;
     });
-    if (!ok) { err.textContent = msg('请填写带 * 的项目，邮箱格式要正确。', 'Please fill in the fields marked * with a valid email.'); err.hidden = false; return; }
+    if (!ok) { var fb = f.querySelector('.bad'); if (fb) { fb.scrollIntoView({ behavior: 'smooth', block: 'center' }); fb.focus({ preventScroll: true }); }
+      err.textContent = attend ? msg('请填写带 * 的项目，邮箱格式要正确。', 'Please fill in the fields marked * with a valid email.') : msg('邮箱格式不对。', 'Please check the email address.'); err.hidden = false; return; }
     sub.disabled = true; var old = sub.innerHTML; sub.innerHTML = '提交中… <small>Submitting</small>';
     var d = { action: attend ? 'register' : 'decline', lang: zh ? 'zh' : 'en', src: new URLSearchParams(location.search).get('src') || '' };
     ['name', 'org', 'title', 'email', 'phone', 'note', 'website'].forEach(function (n) { d[n] = f.elements[n].value; });
