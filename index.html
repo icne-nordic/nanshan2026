@@ -121,6 +121,13 @@ h2 em { font-style:normal; font-size:12px; color:var(--cyan); letter-spacing:.08
   #sub { margin-top:10px; padding:10px }
   .note { margin-top:4px }
 }
+.guest { position:relative; border-top:1px dashed var(--line); margin-top:10px; padding-top:8px }
+.guest .gh { font-size:13px; color:var(--cyan); margin-bottom:6px }
+.guest .rm { position:absolute; right:0; top:4px; background:none; border:0; color:var(--soft); font-size:20px; line-height:1; cursor:pointer; padding:2px 6px }
+.addg { display:block; width:100%; margin-top:10px; padding:9px; border-radius:10px; border:1px dashed rgba(90,223,240,.6);
+  background:none; color:var(--cyan); font:inherit; font-size:14px; cursor:pointer }
+.gt { border-top:1px dashed var(--line); margin-top:14px; padding-top:12px }
+.gt .qr { width:190px }
 [hidden] { display:none !important }
 </style>
 </head>
@@ -198,6 +205,8 @@ h2 em { font-style:normal; font-size:12px; color:var(--cyan); letter-spacing:.08
     <label class="y">职务　Title *<input name="title" autocomplete="organization-title"></label>
     <label class="y">邮箱　Email *<input name="email" type="email" required autocomplete="email" inputmode="email"></label>
     <label class="y">手机（选填）　Phone (optional)<input name="phone" type="tel" autocomplete="tel"></label>
+    <div class="y" id="gWrap"><div id="guests"></div>
+     <button type="button" class="addg" id="addG">＋ 添加同行人员　Add a colleague</button></div>
     <label class="n">未能出席说明（选填）　Reason (optional)<textarea name="note" rows="4"></textarea></label>
     <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
     <p class="err" id="err" hidden></p>
@@ -211,6 +220,7 @@ h2 em { font-style:normal; font-size:12px; color:var(--cyan); letter-spacing:.08
    <b class="t1" id="tHead">报名成功 You're registered</b>
    <p id="tOrg" class="soft"></p>
    <div class="qr"><div id="qr"></div><div class="code" id="tCode"></div></div>
+   <div id="gTickets"></div>
    <p>2026年11月26日（周四）14:00–17:00<br>斯德哥尔摩大酒店 · New York 厅<br><span class="soft">Thursday 26 November 2026 · Grand Hôtel Stockholm</span></p>
    <p class="soft small">请截图保存，入场时出示此码<br>Please save a screenshot and show this code at check-in.</p>
    <button class="link" id="again" type="button">为他人报名 Register another person</button>
@@ -257,7 +267,44 @@ if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button
     var q = qrcode(0, 'M'); q.addData('NS26-' + t.token); q.make();
     document.getElementById('qr').innerHTML = q.createSvgTag({ cellSize: 6, margin: 0, scalable: true });
     document.getElementById('tCode').textContent = t.code;
+    var gt = document.getElementById('gTickets'); gt.innerHTML = '';
+    (t.guests || []).forEach(function (g) {
+      var d = document.createElement('div'); d.className = 'gt';
+      var qq = qrcode(0, 'M'); qq.addData('NS26-' + g.token); qq.make();
+      d.innerHTML = '<b class="t1"></b><div class="qr">' + qq.createSvgTag({ cellSize: 6, margin: 0, scalable: true }) + '<div class="code"></div></div>';
+      d.querySelector('.t1').textContent = g.name; d.querySelector('.code').textContent = g.code;
+      gt.appendChild(d);
+    });
     try { localStorage.setItem(KEY, JSON.stringify(t)); } catch (e) {}
+  }
+  var gBox = document.getElementById('guests'), addG = document.getElementById('addG'), MAXG = 5;
+  function renum() {
+    var rows = gBox.querySelectorAll('.guest');
+    rows.forEach(function (r, i) { r.querySelector('.gh').textContent = '同行人员 ' + (i + 1) + '　Colleague ' + (i + 1); });
+    addG.hidden = rows.length >= MAXG;
+  }
+  addG.onclick = function () {
+    if (gBox.querySelectorAll('.guest').length >= MAXG) return;
+    var d = document.createElement('div'); d.className = 'guest';
+    d.innerHTML = '<p class="gh"></p><button type="button" class="rm" aria-label="删除 Remove">×</button>' +
+      '<label>姓名　Name *<input data-g="name" autocomplete="off"></label>' +
+      '<label>职务　Title *<input data-g="title" autocomplete="off"></label>' +
+      '<label>邮箱（选填）　Email (optional)<input data-g="email" type="email" inputmode="email" autocomplete="off"></label>';
+    d.querySelector('.rm').onclick = function () { d.remove(); renum(); };
+    gBox.appendChild(d); renum(); d.querySelector('input').focus();
+  };
+  function guestList() {
+    var list = [], ok = true, EM = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+    gBox.querySelectorAll('.guest').forEach(function (r) {
+      var g = {}; r.querySelectorAll('input').forEach(function (i) { g[i.dataset.g] = i.value.trim(); i.classList.remove('bad'); });
+      if (!g.name && !g.title && !g.email) return;                     // 空行忽略
+      r.querySelectorAll('input').forEach(function (i) {
+        var v = i.value.trim(), bad = (i.dataset.g !== 'email' && !v) || (i.dataset.g === 'email' && v && !EM.test(v));
+        i.classList.toggle('bad', bad); if (bad) ok = false;
+      });
+      list.push(g);
+    });
+    return ok ? list : null;
   }
   var rsvpSec2 = document.getElementById('rsvp'), regBox = document.getElementById('reg'), choiceBox = document.querySelector('.choice'), qLine = document.querySelector('.rsvp > .q');
   var attend = null, choice = document.querySelectorAll('.choice button');
@@ -272,7 +319,7 @@ if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button
   function showDeclined() { choiceBox.hidden = true; qLine.hidden = true; document.getElementById('regForm').hidden = true; document.getElementById('declined').hidden = false; }
   document.getElementById('again').onclick = function () {
     document.getElementById('ticket').hidden = true; document.getElementById('regForm').hidden = false; choiceBox.hidden = false; qLine.hidden = false;
-    f.reset(); try { localStorage.removeItem(KEY); } catch (e) {} regBox.hidden = true; f.hidden = true; attend = null;
+    f.reset(); gBox.innerHTML = ''; renum(); try { localStorage.removeItem(KEY); } catch (e) {} regBox.hidden = true; f.hidden = true; attend = null;
     choice.forEach(function (b) { b.setAttribute('aria-checked', 'false') });
     rsvpSec2.scrollIntoView({ behavior: 'smooth' });
   };
@@ -292,15 +339,19 @@ if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button
                                                        : (v !== '' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v));
       el.classList.toggle('bad', bad); if (bad) ok = false;
     });
+    var guests = attend ? guestList() : [];
+    if (guests === null) ok = false;
     if (!ok) { var fb = f.querySelector('.bad'); if (fb) { fb.scrollIntoView({ behavior: 'smooth', block: 'center' }); fb.focus({ preventScroll: true }); }
       err.textContent = attend ? msg('请填写带 * 的项目，邮箱格式要正确。', 'Please fill in the fields marked * with a valid email.') : msg('邮箱格式不对。', 'Please check the email address.'); err.hidden = false; return; }
     sub.disabled = true; var old = sub.innerHTML; sub.innerHTML = '提交中… <small>Submitting</small>';
     var d = { action: attend ? 'register' : 'decline', lang: zh ? 'zh' : 'en', src: new URLSearchParams(location.search).get('src') || '' };
     ['name', 'org', 'title', 'email', 'phone', 'note', 'website'].forEach(function (n) { d[n] = f.elements[n].value; });
+    if (attend && guests.length) d.guests = JSON.stringify(guests);
     post(d).then(function (r) {
       sub.disabled = false; sub.innerHTML = old;
       if (r.ok && !attend) { showDeclined(); rsvpSec2.scrollIntoView({ behavior: 'smooth' }); return; }
       if (r.ok) { showTicket(r, r.dup); rsvpSec2.scrollIntoView({ behavior: 'smooth' }); return; }
+      if (r.err === 'full' && r.left > 0) { err.textContent = msg('剩余名额只有 ' + r.left + ' 个，请减少同行人数。', 'Only ' + r.left + ' seat(s) left, please reduce the number of colleagues.'); err.hidden = false; return; }
       var m = { full: msg('名额已满，感谢关注。', 'Sorry, the event is fully booked.'), closed: msg('报名已截止。', 'Registration is closed.'),
                 invalid: msg('请检查填写的信息。', 'Please check your details.') }[r.err] || msg('提交失败，请稍后再试。', 'Something went wrong, please try again.');
       err.textContent = m; err.hidden = false;
