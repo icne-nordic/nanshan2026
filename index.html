@@ -232,12 +232,12 @@ h2 em { font-style:normal; font-size:13px; color:var(--cyan); letter-spacing:.08
   <div id="ticket" class="ticket" hidden>
    <div class="tick">✓</div>
    <p id="tWho" class="dear"></p>
-   <b class="t1" id="tHead">报名成功 You're registered</b>
+   <b class="t1" id="tHead">报名成功，待确认</b>
+   <b class="t1" id="tHeadEn">Registration received – pending confirmation</b>
    <p id="tOrg" class="soft"></p>
-   <div class="qr"><div id="qr"></div><div class="code" id="tCode"></div></div>
-   <div id="gTickets"></div>
+   <p id="tMail"></p>
+   <p id="tGuests" class="soft" hidden>同行人员的邀请函将分别发送至各自邮箱<br>Invitations for your colleagues will be sent to their own email addresses.</p>
    <p>2026年11月26日（周四）14:00–17:00<br>斯德哥尔摩大酒店 · New York 厅<br><span class="soft">Thursday 26 November 2026 · Grand Hôtel Stockholm</span></p>
-   <p class="soft small">请截图保存，入场时出示此码<br>Please save a screenshot and show this code at check-in.</p>
    <button class="link" id="again" type="button">为他人报名 Register another person</button>
   </div>
   <div id="declined" class="ticket" hidden>
@@ -264,7 +264,6 @@ document.getElementById('toRsvp').onclick = function (e) { e.preventDefault(); r
 addEventListener('scroll', chk, { passive: true }); addEventListener('resize', chk); chk();
 if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button[data-lang=en]').click();
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script>
 (function () {
   var API = 'https://script.google.com/macros/s/AKfycbw5kCSTa27p1NzOL9asX-kYvYV2TQ0bjHe2bHJzqm8uQK9SAfJpjGYWBBrBrYPzsHII6g/exec', KEY = 'ns26-ticket';
@@ -277,19 +276,13 @@ if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button
   function showTicket(t, dup) {
     choiceBox.hidden = true; if (window.qLine0) qLine0.hidden = true; regBox.hidden = false; document.getElementById('regForm').hidden = true;
     var box = document.getElementById('ticket'); box.hidden = false;
-    document.getElementById('tHead').textContent = dup ? '您已报名 You are already registered' : '报名成功 You\'re registered';
+    document.getElementById('tHead').textContent = dup ? '您已报名，待确认' : '报名成功，待确认';
+    document.getElementById('tHeadEn').textContent = dup ? 'You have already registered – pending confirmation' : 'Registration received – pending confirmation';
     document.getElementById('tWho').textContent = '尊敬的 ' + t.name + '　Dear ' + t.name; document.getElementById('tOrg').textContent = t.org;
-    var q = qrcode(0, 'M'); q.addData('NS26-' + t.token); q.make();
-    document.getElementById('qr').innerHTML = q.createSvgTag({ cellSize: 6, margin: 0, scalable: true });
-    document.getElementById('tCode').textContent = t.code;
-    var gt = document.getElementById('gTickets'); gt.innerHTML = '';
-    (t.guests || []).forEach(function (g) {
-      var d = document.createElement('div'); d.className = 'gt';
-      var qq = qrcode(0, 'M'); qq.addData('NS26-' + g.token); qq.make();
-      d.innerHTML = '<b class="t1"></b><div class="qr">' + qq.createSvgTag({ cellSize: 6, margin: 0, scalable: true }) + '<div class="code"></div></div>';
-      d.querySelector('.t1').textContent = g.name; d.querySelector('.code').textContent = g.code;
-      gt.appendChild(d);
-    });
+    var tm = document.getElementById('tMail'); tm.textContent = '';
+    if (t.email) { tm.append('正式邀请函将通过邮件发送至 ' + t.email, document.createElement('br'), 'Your formal invitation will be sent to ' + t.email + '.'); }
+    else { tm.append('正式邀请函将通过邮件发送给您', document.createElement('br'), 'Your formal invitation will be sent to you by email.'); }
+    document.getElementById('tGuests').hidden = !(t.guests && t.guests.length);
     try { localStorage.setItem(KEY, JSON.stringify(t)); } catch (e) {}
   }
   var gBox = document.getElementById('guests'), addG = document.getElementById('addG'), MAXG = 5;
@@ -365,7 +358,7 @@ if (!/^zh/i.test(navigator.language || '')) document.querySelector('.tabs button
     post(d).then(function (r) {
       sub.disabled = false; sub.innerHTML = old;
       if (r.ok && !attend) { showDeclined(); rsvpSec2.scrollIntoView({ behavior: 'smooth' }); return; }
-      if (r.ok) { showTicket(r, r.dup); rsvpSec2.scrollIntoView({ behavior: 'smooth' }); return; }
+      if (r.ok) { r.email = r.email || d.email.trim(); showTicket(r, r.dup); rsvpSec2.scrollIntoView({ behavior: 'smooth' }); return; }
       if (r.err === 'full' && r.left > 0) { err.textContent = msg('剩余名额只有 ' + r.left + ' 个，请减少同行人数。', 'Only ' + r.left + ' seat(s) left, please reduce the number of colleagues.'); err.hidden = false; return; }
       var m = { full: msg('名额已满，感谢关注。', 'Sorry, the event is fully booked.'), closed: msg('报名已截止。', 'Registration is closed.'),
                 invalid: msg('请检查填写的信息。', 'Please check your details.') }[r.err] || msg('提交失败，请稍后再试。', 'Something went wrong, please try again.');
