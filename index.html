@@ -20,7 +20,7 @@ body { font:15px/1.7 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sa
   background:linear-gradient(115deg,#073583 0%,#0a6790 50%,#159a7b 100%) fixed; min-height:100vh; -webkit-text-size-adjust:100% }
 .wrap { max-width:480px; margin:0 auto; position:relative }
 .banner { width:100%; display:block; -webkit-mask-image:linear-gradient(#000 88%,transparent); mask-image:linear-gradient(#000 88%,transparent) }
-.zhtitle { text-align:center; margin:2px 12px 0; font:900 calc((100vw - 28px) / 23.5)/1.25 "Noto Serif SC","Songti SC","STSong",serif; letter-spacing:.01em;
+.zhtitle { text-align:center; margin:2px 12px 0; font:900 min(calc((100vw - 28px) / 23.5), 19.2px)/1.25 "Noto Serif SC","Songti SC","STSong",serif; letter-spacing:.01em;
   background:linear-gradient(#7aeeea,#62e6ec 30%,#55d8ec 70%,#5ac6ed); -webkit-background-clip:text; background-clip:text; color:transparent;
   filter:drop-shadow(0 0 10px rgba(90,223,240,.35)) }
 .entitle { text-align:center; padding:6px 16px 0; font:16px/1.45 Charter,Georgia,"Times New Roman",serif; color:#9debf7; letter-spacing:.01em; text-wrap:balance }
@@ -88,7 +88,7 @@ h2 em { font-style:normal; font-size:13px; color:var(--cyan); letter-spacing:.08
   body { font-size:16px }
   .wrap { max-width:1080px; padding:0 32px }
   .banner { width:100vw; max-width:none; margin:0 0 0 calc(50% - 50vw); -webkit-mask-image:linear-gradient(#000 80%,transparent); mask-image:linear-gradient(#000 80%,transparent) }
-  .zhtitle { font-size:clamp(32px,2.6vw,48px); margin-top:6px; white-space:nowrap }
+  .zhtitle { font-size:clamp(30px,2.6vw,42px); margin-top:6px; white-space:nowrap }
   .entitle { font-size:clamp(19px,1.45vw,26px); padding-top:8px }
   .row b { font-size:18px } .row span, .row a { font-size:15.5px }
   .txt[lang=en] p { font-size:16.5px }
@@ -141,6 +141,21 @@ h2 em { font-style:normal; font-size:13px; color:var(--cyan); letter-spacing:.08
   background:none; color:var(--cyan); font:inherit; font-size:14px; cursor:pointer }
 .gt { border-top:1px dashed var(--line); margin-top:14px; padding-top:12px }
 .gt .qr { width:190px }
+.hl { display:flex; gap:10px; margin-top:10px }
+.hl p { flex:1; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 12px; font-size:14px; line-height:1.4; display:flex; flex-wrap:wrap; align-items:baseline; gap:0 6px }
+.hl i { font-style:normal; color:var(--cyan) }
+.hl span { flex-basis:100%; font-size:12.5px; color:var(--soft) }
+.cal { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:8px; margin-top:10px; font-size:13px; color:var(--soft) }
+.cal a { color:var(--cyan); text-decoration:none; border:1px solid rgba(90,223,240,.45); border-radius:999px; padding:5px 12px }
+.tcal { margin:12px 0 4px }
+.sp { display:grid; gap:0; border-radius:14px; overflow:hidden; border:1px solid var(--line) }
+.sp div { padding:10px 14px; background:var(--card) }
+.sp div:nth-child(odd) { background:rgba(255,255,255,.04) }
+.sp b { font-size:15.5px } .sp b em { font-style:normal; font-weight:500; color:var(--cyan); font-size:13px; letter-spacing:.03em; margin-left:4px }
+.sp p { font-size:13.5px; line-height:1.45; margin-top:2px } .sp p span { display:block; font-size:12.5px; color:var(--soft) }
+@media (min-width:820px) { .hl p { font-size:15.5px } .hl span { font-size:14px } .cal { font-size:14.5px }
+  .sp { grid-template-columns:1fr 1fr } .sp div:nth-child(odd) { background:var(--card) } .sp div:nth-child(4n+1), .sp div:nth-child(4n+2) { background:rgba(255,255,255,.04) }
+  .sp b { font-size:17px } .sp p { font-size:15px } .sp p span { font-size:14px } }
 [hidden] { display:none !important }
 </style>
 </head>
@@ -157,6 +172,11 @@ h2 em { font-style:normal; font-size:13px; color:var(--cyan); letter-spacing:.08
    <div><b>斯德哥尔摩大酒店 · New York 厅</b><span>Grand Hôtel Stockholm, New York Room<br>Södra Blasieholmshamnen 8, Stockholm</span>
    <a href="https://maps.google.com/?q=Grand+H%C3%B4tel+Stockholm,+S%C3%B6dra+Blasieholmshamnen+8" target="_blank" rel="noopener">打开地图 Open map ›</a></div></div>
  </div>
+ <div class="hl">
+  <p><i>⇄</i>现场提供中英同声传译<span>Simultaneous interpretation (Chinese–English)</span></p>
+  <p><i>◆</i>深圳企业产品展示<span>Product exhibition by Shenzhen companies</span></p>
+ </div>
+ <div class="cal"><span>加入日历　Add to calendar</span><a href="nanshan2026.ics" download>Apple / Outlook</a><a href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=%E6%B7%B1%E5%9C%B3%E5%8D%97%E5%B1%B1-%E7%91%9E%E5%85%B8%E6%96%AF%E5%BE%B7%E5%93%A5%E5%B0%94%E6%91%A9%E7%94%9F%E5%91%BD%E5%81%A5%E5%BA%B7%E4%BA%A7%E4%B8%9A%E7%BB%8F%E8%B4%B8%E4%BA%A4%E6%B5%81%E4%BC%9A+Shenzhen+Nanshan+%E2%80%93+Stockholm+Exchange+Conference&amp;dates=20261126T130000Z/20261126T160000Z&amp;location=Grand+H%C3%B4tel+Stockholm,+New+York+Room,+S%C3%B6dra+Blasieholmshamnen+8,+Stockholm&amp;details=https://icne-nordic.github.io/nanshan2026/" target="_blank" rel="noopener">Google</a></div>
 </section>
 
 <div class="grid">
@@ -195,6 +215,19 @@ h2 em { font-style:normal; font-size:13px; color:var(--cyan); letter-spacing:.08
  </div>
 </section>
 </div>
+
+<section class="spk">
+ <h2>发言嘉宾 <em>Speakers</em></h2>
+ <div class="sp">
+  <div><b>谭魁 <em>TAN Kui</em></b><p>中国驻瑞典大使馆 一等秘书（经济商务处）<span>First Secretary (Economic and Commercial Office), Embassy of the People's Republic of China in Sweden</span></p></div>
+  <div><b>张玉庆 <em>ZHANG Yuqing</em></b><p>深圳市南山海外联谊会 会长<span>President, Shenzhen Nanshan Overseas Friendship Association</span></p></div>
+  <div><b>张巧珍 <em>ZHANG Qiaozhen</em></b><p>北欧深圳总商会 会长<span>President, Nordic Shenzhen Chamber of Commerce</span></p></div>
+  <div><b>吴晨 <em>WU Chen</em></b><p>深圳市南山区卫生健康局 局长<span>Director, Health Bureau of Nanshan District, Shenzhen</span></p></div>
+  <div><b>Fredric Telander</b><p>Ambusol AB (publ) 创始人、董事会主席<span>Founder &amp; Chairman of the Board, Ambusol AB (publ)</span></p></div>
+  <div><b>Filippo Zerbini</b><p>Elexir Pharma AB 商务总监<span>Commercial Director, Elexir Pharma AB</span></p></div>
+  <div><b>李锋 <em>LI Feng</em></b><p>深圳市至佳生活网络科技有限公司 董事长<span>Chairman of the Board, BEST.MY.LIFE. Technology Co., Ltd.</span></p></div>
+ </div>
+</section>
 
 <section class="org">
  <h2>组织单位 <em>Organizers</em></h2>
@@ -237,6 +270,7 @@ h2 em { font-style:normal; font-size:13px; color:var(--cyan); letter-spacing:.08
    <b class="t1" id="tHeadEn">Registration received – pending confirmation</b>
    <p id="tOrg" class="soft"></p>
    <p id="tMail"></p>
+   <div class="cal tcal"><span>加入日历　Add to calendar</span><a href="nanshan2026.ics" download>Apple / Outlook</a><a href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=%E6%B7%B1%E5%9C%B3%E5%8D%97%E5%B1%B1-%E7%91%9E%E5%85%B8%E6%96%AF%E5%BE%B7%E5%93%A5%E5%B0%94%E6%91%A9%E7%94%9F%E5%91%BD%E5%81%A5%E5%BA%B7%E4%BA%A7%E4%B8%9A%E7%BB%8F%E8%B4%B8%E4%BA%A4%E6%B5%81%E4%BC%9A+Shenzhen+Nanshan+%E2%80%93+Stockholm+Exchange+Conference&amp;dates=20261126T130000Z/20261126T160000Z&amp;location=Grand+H%C3%B4tel+Stockholm,+New+York+Room,+S%C3%B6dra+Blasieholmshamnen+8,+Stockholm&amp;details=https://icne-nordic.github.io/nanshan2026/" target="_blank" rel="noopener">Google</a></div>
    <p id="tGuests" class="soft" hidden>同行人员的邀请函将分别发送至各自邮箱<br>Invitations for your colleagues will be sent to their own email addresses.</p>
    <p>2026年11月26日（周四）14:00–17:00<br>斯德哥尔摩大酒店 · New York 厅<br><span class="soft">Thursday 26 November 2026 · Grand Hôtel Stockholm</span></p>
    <button class="link" id="again" type="button">为他人报名 Register another person</button>

@@ -1,0 +1,21 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Nordic Shenzhen Chamber of Commerce//Nanshan 2026//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:nanshan2026-20261126@icne-nordic.github.io
+DTSTAMP:20261122T120000Z
+DTSTART:20261126T130000Z
+DTEND:20261126T160000Z
+SUMMARY:深圳南山-瑞典斯德哥尔摩生命健康产业经贸交流会 Shenzhen Nanshan – Stockholm Life and Health Industry Economic and Trade Exchange Conference
+LOCATION:Grand Hôtel Stockholm\, New York Room\, Södra Blasieholmshamnen 8\, Stockholm
+DESCRIPTION:https://icne-nordic.github.io/nanshan2026/
+URL:https://icne-nordic.github.io/nanshan2026/
+BEGIN:VALARM
+TRIGGER:-PT2H
+ACTION:DISPLAY
+DESCRIPTION:Reminder
+END:VALARM
+END:VEVENT
+END:VCALENDAR
